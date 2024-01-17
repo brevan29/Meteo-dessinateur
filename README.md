@@ -2,7 +2,7 @@
 ### © Brévan HAMEL - 2023-24
 ### Version 2.2.5
 
-1. Revue des ajouts réalisés : 
+Revue des ajouts réalisés : 
    - Améliorations Majeures |
      - Amélioration de l'interface graphique -- Ajout des labelFrame + Séparation des Parties ✅
      - Amélioration de la fonction écriture | Le centrage ✅
