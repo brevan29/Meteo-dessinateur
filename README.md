@@ -1,6 +1,6 @@
 ## Brévan Météo 2.0
 ### © Brévan HAMEL - 2023-24
-### Version 2.2.5
+### Version 2.2.6
 
 ***Revue des ajouts réalisés :***
    - **Améliorations Majeures**
@@ -12,4 +12,5 @@
      - Ajout de la boite de dialogue ✅
      - Blocage du dimensionnement de la fenêtre graphique ✅
      - Ajout du brouillard ✅
+     - Ajout de "," et de ";" ✅
      - Intégration du lever et coucher de soleil (En cours)
