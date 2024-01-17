@@ -1,4 +1,4 @@
-# Brévan Météo
+# Brévan Météo 2.0
 ## © Brévan HAMEL - 2023-24
 ## Version 2.2.5
 
