@@ -3,10 +3,10 @@
 ### Version 2.2.5
 
 ***Revue des ajouts réalisés :***
-   - Améliorations Majeures
+   - **Améliorations Majeures**
      - Amélioration de l'interface graphique -- Ajout des labelFrame + Séparation des Parties ✅
      - Amélioration de la fonction écriture | Le centrage ✅
-   - Améliorations mineures
+   - **Améliorations mineures**
      - Ajout de la vigilance ✅
      - Revue des emplacements des objets dessinés ✅
      - Ajout de la boite de dialogue ✅
