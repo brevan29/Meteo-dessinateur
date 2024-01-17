@@ -12,4 +12,4 @@
      - Ajout de la boite de dialogue ✅
      - Blocage du dimensionnement de la fenêtre graphique ✅
      - Ajout du brouillard ✅
-     - Intégration du lever et coucher de soleil (En cours 1/4 de l'amélioration)
+     - Intégration du lever et coucher de soleil (En cours)
