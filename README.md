@@ -15,3 +15,4 @@
      - Ajout du brouillard ✅
      - Ajout de "," et de ";" ✅
      - Intégration du lever et coucher de soleil (En cours)
+     - Ajout d'un bouton qui définit l'échéance de la prévision (Aujourd'hui - Demain / Demain - Après-demain) (En cours)
