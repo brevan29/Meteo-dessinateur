@@ -7,20 +7,7 @@ from tkinter import ttk
 
 # © Brévan Météo - 2023-.
 # © Brévan HAMEL
-# Version 2.2.6
-
-""" Revue des ajouts réalisés : 
-    | Améliorations Majeures |
-    -- Amélioration de l'interface graphique -- Ajout des labelFrame + Séparation des Parties ✅
-    
-    | Améliorations mineures |
-    - Ajout de la vigilance ✅
-    - Revue des emplacements des objets dessinés ✅
-    - Ajout de la boite de dialogue ✅
-    - Blocage du dimensionnement de la fenêtre graphique ✅
-    - Ajout du brouillard ✅
-    - Intégration du lever et coucher de soleil (En cours 1/4 de l'amélioration)
-"""
+# Version 2.3.7
 
 speed(200)
 setup(1600,900,0,0)
@@ -28,11 +15,13 @@ ht()
 up()
 title("Dessin des prévision météo faites par Brévan")
 pensize(2)
-possibilités=["Soleil","Éclaircies","Nuages","Averse","Pluie","Orage","Neige","Brouillard"]
+possibilités=[" Soleil"," Ciel Voilé"," Éclaircies"," Nuages"," Averse"," Pluie"," Orage"," Neige"," Brouillard"]
 prévisions=[]
 
-def Variation_gris():
-    couleur=str(hex(randint(150,200)))[2:]
+def Variation_gris():if mode==3:
+        couleur=str(hex(randint(16,100)))[2:]
+    else:
+        couleur=str(hex(randint(150,200)))[2:]
     return "#"+3*couleur 
  
 def vent(x,y,vitesse=0):
@@ -74,32 +63,27 @@ def soleil(x,y):
     up()
     end_fill()
         
-def nuages(x,y,mode="nua"):
-    y-=90
-    nbr_nua=randint(7,13)
-    x-=nbr_nua*7
-    if mode=="ecl":
-        multi=1.0
-        y+=15
-    elif mode=="nua":
-        multi=1.5
+def nuages(vx,vy,mode=1.5):
+    vy-=90
+    if mode==1:
+        nbr_nua=randint(7,13)
+    else:
+        nbr_nua=10
+    vx-=(nbr_nua*14)/2
     setheading(0)
-    goto(x,y)
-    down()
-    begin_fill()
+    goto(vx,vy)
     for vi in range(nbr_nua):
-        gris=Variation_gris()
-        pencolor(gris)
-        fillcolor(gris) 
-        circle(int(randint(15,40)*multi))
+        gris=Variation_gris(mode)
+        color(gris) 
+        begin_fill()
+        down()
+        circle(randint(int(15*mode),30+int(10*mode)))
         end_fill()
         up()
-        goto(x+(vi+1)*14,y)
-        down()
-        begin_fill()
+        goto(vx+(vi+1)*14,vy)
     up()
     return vi
-
+        
 def éclaircies(x,y):
     soleil(x,y)
     nuages(x+25,y-10,'ecl')
@@ -107,18 +91,17 @@ def éclaircies(x,y):
 def pluie(x,y,mode="pl"):
     y=y-90
     if mode=="av":
-        gouttes=nuages(x+25,y+90,"ecl")
+        gouttes=nuages(x+25,y+90,1)
         x+=25
         y+=15
     else:
-        gouttes=nuages(x,y+90,"nua")
+        gouttes=nuages(x,y+90,1.5)
     if gouttes>6:
         x-=gouttes*8+5
     else:
         x-=60
     goto(x,y)
-    fillcolor("blue")
-    pencolor("blue")
+    color("blue")
     setheading(250)
     for vg in range((gouttes-1)):
         down() 
@@ -140,55 +123,34 @@ def averse(x,y):
     soleil(x,y)
     pluie(x+10,y-5,'av')
     
-def orage(x,y):
+def orage(vx,vy):
+    if vy>100:
+        vy+=15
+    else:
+        vy+=25
     setheading(0)
-    y-=65
-    x-=70
-    goto(x,y)
-    somme_des_nuages=0.0
-    taille_nuages=0
-    for vi in range(10):
-        begin_fill()
-        taille_nuages=randint(40,60)
-        couleur=str(hex(randint(16,100)))[2:]
-        gris="#"+3*couleur
-        pencolor(gris)
-        fillcolor(gris) 
-        circle(taille_nuages)
-        somme_des_nuages+=taille_nuages/10
-        end_fill()
-        up()
-        goto(x+(vi+1)*14,y)
-        down()
-        
+    goto(vx,vy)
+    nuages(vx,vy,3)
     # éclair
     up()
     pensize(15)
     pencolor("#FAD30B")
-    goto(x+somme_des_nuages,y)
+    goto(vx,vy)
     down()
-    goto(x+somme_des_nuages-10,y-40)
-    goto(x+somme_des_nuages+10,y-40)
-    goto(x+somme_des_nuages,y-80)
+    goto(vx-10,vy-40)
+    goto(vx+10,vy-40)
+    goto(vx,vy-80)
     pensize(8)
     up()
 
 def brouillard(vx,vy):
-    vy-=50
-    setheading(0)
-    goto(vx,vy)
-    down()
-    for vi in range(10):
-        begin_fill()
-        gris=Variation_gris()
-        color(gris) 
-        down()
-        circle(randint(30,45))
-        end_fill()
-        up()
-        goto(vx+(vi+1)*14,vy)
-    pencolor(Variation_gris())
+    vsetheading(0)
+    nuages(vx,vy,2)
+    color(Variation_gris())
+    goto(vx,vy-20)
     pensize(5)
+    vx-=80
+    vy-=80
     va=randint(0,1)
     for wi in range(3):
         goto(vx-(-1)**(wi+va)*20,vy-20-20*wi)
@@ -209,24 +171,14 @@ def flocon(vx,vy,taille=40):
         up()
 
 def neige(x,y):
-    y-=90
-    x-=70
+    y+=15
     setheading(0)
     goto(x,y)
-    down()
-    
-    for vi in range(10):
-        begin_fill()
-        gris=Variation_gris()
-        pencolor(gris)
-        fillcolor(gris) 
-        circle(randint(30,45))
-        end_fill()
-        up()
-        goto(x+(vi+1)*14,y)
-        down()
-    up()
-    pencolor("blue")
+    vi=nuages(x,y,2)
+    y-=90
+    x-=70
+    goto(x+(vi+1)*14,y)
+    color("blue")
     pensize(5)
     lim=(0,4)
     for vh in range(1,3):
@@ -235,6 +187,18 @@ def neige(x,y):
         lim=(18,3)
     color("black")
     pensize(8)
+
+def Ciel_voile(vx,vy):
+    soleil(vx,vy)
+    color(Variation_gris())
+    pensize(8)
+    va=randint(0,1)
+    vx-=3
+    for wi in range(3):
+        goto(vx-(-1)**(wi+va)*20,vy-20-20*wi)
+        down()
+        goto(vx+135-(-1)**(wi+va)*20,vy-20-20*wi)
+        up()
 
 def préparation():
     anglais={"Vert":"#3CBB00", "Jaune":"#FFE000", "Orange":"#FFA600", "Rouge":"#E00000"}
@@ -282,9 +246,12 @@ def prévision(temps):
     
     for y in [300,-60]: 
         for x in [-415,0,426]: 
-            globals()[temps[vn].lower()](x,y)
+            temps[vn]=temps[vn][1:]
+            if temps[vn].lower()=="ciel voilé":
+                Ciel_voile(vx,vy)
+            else:
+                globals()[temps[vn].lower()](vx,vy)
             vn+=1
-            
     pencolor("black")
     pensize(2)
     for y in [100,-260]:
@@ -302,7 +269,7 @@ def Récupération():
     prevu=[temps1.set(''),temps2.set(''),temps3.set(''),temps4.set(''),temps5.set(''),temps6.set(''),temp1.set('0'),temp2.set('0'),temp3.set('0'),temp4.set('0'),temp5.set('0'),temp6.set('0'), source.delete(0,END)]  
 
 def tkpres():
-    global temp1, temp2, temp3, temp4, temp5, temp6, temps1, temps2, temps3, temps4, temps5, temps6, source, ventd, ventad, taille, vigidem, vigiadem, opencours, cd, cad, ld, lad, ajd_dm, VA
+    global temp1, temp2, temp3, temp4, temp5, temp6, temps1, temps2, temps3, temps4, temps5, temps6, source, ventd, ventad, taille, vigidem, vigiadem, opencours, ajd_dm, VA
     prim=Tk()
     prim.title("Récupération des prévisions")
 
