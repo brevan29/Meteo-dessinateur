@@ -374,7 +374,7 @@ def tkpres():
     opencours=StringVar(prim)
     opencours.set(value="Veuillez rentrer les prévisions")
     oec=ttk.Label(act, textvariable=opencours) #Opération En Cours
-    oec.grid(column=0, columnspan=3,row=2, padx=20, pady=5)
+    oec.grid(column=0, columnspan=3,row=1, padx=20, pady=5)
 
     ttk.OptionMenu(act, ajd_dm, "Demain / Après-Demain","Aujourd'hui / Demain","Demain / Après-Demain").grid(column=3, row=0, padx=20, pady=5)
 
