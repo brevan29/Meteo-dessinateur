@@ -18,7 +18,8 @@ pensize(2)
 possibilités=[" Soleil"," Ciel Voilé"," Éclaircies"," Nuages"," Averse"," Pluie"," Orage"," Neige"," Brouillard"]
 prévisions=[]
 
-def Variation_gris():if mode==3:
+def Variation_gris():
+    if mode==3:
         couleur=str(hex(randint(16,100)))[2:]
     else:
         couleur=str(hex(randint(150,200)))[2:]
@@ -144,7 +145,7 @@ def orage(vx,vy):
     up()
 
 def brouillard(vx,vy):
-    vsetheading(0)
+    setheading(0)
     nuages(vx,vy,2)
     color(Variation_gris())
     goto(vx,vy-20)
@@ -244,8 +245,8 @@ def prévision(temps):
 
     pensize(8)
     
-    for y in [300,-60]: 
-        for x in [-415,0,426]: 
+    for vy in [300,-60]: 
+        for vx in [-415,0,426]: 
             temps[vn]=temps[vn][1:]
             if temps[vn].lower()=="ciel voilé":
                 Ciel_voile(vx,vy)
@@ -269,10 +270,11 @@ def Récupération():
     prevu=[temps1.set(''),temps2.set(''),temps3.set(''),temps4.set(''),temps5.set(''),temps6.set(''),temp1.set('0'),temp2.set('0'),temp3.set('0'),temp4.set('0'),temp5.set('0'),temp6.set('0'), source.delete(0,END)]  
 
 def tkpres():
-    global temp1, temp2, temp3, temp4, temp5, temp6, temps1, temps2, temps3, temps4, temps5, temps6, source, ventd, ventad, taille, vigidem, vigiadem, opencours, ajd_dm, VA
+    global temp1, temp2, temp3, temp4, temp5, temp6, temps1, temps2, temps3, temps4, temps5, temps6, source, ventd, ventad, taille, vigidem, vigiadem, opencours, ajd_dm, VA, p1
     prim=Tk()
     prim.title("Récupération des prévisions")
 
+    p1=BooleanVar(prim)
     var1, var2, var3, var4, var5, var6 = StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim)
     var1.set("0")
     var2.set("0")
