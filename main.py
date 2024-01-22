@@ -7,7 +7,7 @@ from tkinter import ttk
 
 # © Brévan Météo - 2023-.
 # © Brévan HAMEL
-# Version 2.1.5
+# Version 2.2.6
 
 """ Revue des ajouts réalisés : 
     | Améliorations Majeures |
