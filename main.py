@@ -237,21 +237,29 @@ def neige(x,y):
     pensize(8)
 
 def préparation():
-    anglais={"Vert":"#3CBB00", "Jaune":"#DBC102", "Orange":"#FFA600", "Rouge":"#E00000"}
+    anglais={"Vert":"#3CBB00", "Jaune":"#FFE000", "Orange":"#FFA600", "Rouge":"#E00000"}
     date=str(datetime.now())[:10]
-    date=" - "+str(int(date[-2:])+1)+"/"+date[5:7]+"/"+date[:4]
+    if p1.get()==True:
+        jourdeplus=0
+    else:
+        jourdeplus=1
+    date=" - "+str(int(date[-2:])+jourdeplus)+"/"+date[5:7]+"/"+date[:4]
     position_date=((150.0+taille_phrase(date,30))/2)
-    a_écrire=["DEMAIN"+date,"APRES-DEMAIN","© BREVAN 2024"]
-    emplacements=[(-position_date,370,40,True,(7,30)),(0,30,40,False,()),(600,-400,30,False,())]
+    if ajd_dm.get()=="Demain / Après-Demain":
+        a_écrire=["DEMAIN"+date,"APRES-DEMAIN","© BREVAN 2024"]
+        emplacements=[(-position_date,370,40,True,(7,30)),(0,25,40,False,()),(600,-400,30,False,())]
+    else:
+        a_écrire=["AUJOURD'HUI"+date,"DEMAIN","© BREVAN 2024"]
+        emplacements=[(-position_date,370,40,True,(7,30)),(0,25,40,False,()),(600,-400,30,False,())]
+
     for i in range(3):
-        if "APRES-DEMAIN" == a_écrire[i]:
-            color(anglais[vigiadem.get()])
-        elif "DEMAIN" in a_écrire[i]:
+        if i==0:
             color(anglais[vigidem.get()])
+        elif i==1:
+            color(anglais[vigiadem.get()])
         else:
             color("Black")
         écriture(emplacements[i][0], emplacements[i][1], a_écrire[i], emplacements[i][2], emplacements[i][3], emplacements[i][4])                
-               
 
 def extraire():
     date=str(datetime.now())[:10]
@@ -294,7 +302,7 @@ def Récupération():
     prevu=[temps1.set(''),temps2.set(''),temps3.set(''),temps4.set(''),temps5.set(''),temps6.set(''),temp1.set('0'),temp2.set('0'),temp3.set('0'),temp4.set('0'),temp5.set('0'),temp6.set('0'), source.delete(0,END)]  
 
 def tkpres():
-    global temp1, temp2, temp3, temp4, temp5, temp6, temps1, temps2, temps3, temps4, temps5, temps6, source, ventd, ventad, taille, vigidem, vigiadem, opencours, cd, cad, ld, lad
+    global temp1, temp2, temp3, temp4, temp5, temp6, temps1, temps2, temps3, temps4, temps5, temps6, source, ventd, ventad, taille, vigidem, vigiadem, opencours, cd, cad, ld, lad, ajd_dm, VA
     prim=Tk()
     prim.title("Récupération des prévisions")
 
@@ -305,8 +313,8 @@ def tkpres():
     var4.set("0")
     var5.set("0")
     var6.set("0")
-
-    cd,cad,ld,lad=StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim)
+    
+    ajd_dm=StringVar(prim)
     ttk.Label(prim, text="Veuillez rentrer les prévisions pour demain.", justify="center", anchor=CENTER).grid(columnspan=3, row=0, sticky="nsew")
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -335,22 +343,10 @@ def tkpres():
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     adm=ttk.Labelframe(prim, text="Prévisions pour après-demain")
     adm.grid(row=5, column=0, columnspan=3, padx=10, pady=10)
-    #cad.set("heure du coucher de soleil")
-    #lad.set()
-
-    lad=ttk.Entry(adm) #Lever du soleil
-    lad.insert(0,"heure du Lever de soleil")
-    lad.bind("<FocusIn>", lambda e: lad.delete(0,"end"))
-    lad.grid(column=0, row=0, padx=20, pady=3)
-    ttk.Label(adm, text="Après-demain", font=("Lucida Grande", 13)).grid(column=1, row=0, padx=10, pady=2)
-    cad=ttk.Entry(adm) #Lever du soleil
-    cad.insert(0,"heure du coucher de soleil")
-    cad.bind("<FocusIn>", lambda e: cad.delete(0,"end"))
-    cad.grid(column=2, row=0, padx=20, pady=3)
-
-    ttk.Label(adm, text="Matin", font=("Lucida Grande", 13)).grid(column=0, row=1, padx=10, pady=2)
-    ttk.Label(adm, text="Après-midi", font=("Lucida Grande", 13)).grid(column=1, row=1, padx=10, pady=2)
-    ttk.Label(adm, text="Soir", font=("Lucida Grande", 13)).grid(column=2, row=1, padx=10, pady=2)
+    
+    ttk.Label(adm, text="Matin", font=("Lucida Grande", 13)).grid(column=0, row=0, padx=10, pady=2)
+    ttk.Label(adm, text="Après-midi", font=("Lucida Grande", 13)).grid(column=0, row=0, padx=10, pady=2)
+    ttk.Label(adm, text="Soir", font=("Lucida Grande", 13)).grid(column=2, row=0, padx=10, pady=2)
     temps4=ttk.Combobox(adm, values=possibilités)
     temps5=ttk.Combobox(adm, values=possibilités)
     temps6=ttk.Combobox(adm, values=possibilités)
@@ -411,9 +407,12 @@ def tkpres():
     oec=ttk.Label(act, textvariable=opencours) #Opération En Cours
     oec.grid(column=0, columnspan=3,row=2, padx=20, pady=5)
 
+    ttk.OptionMenu(act, ajd_dm, "Demain / Après-Demain","Aujourd'hui / Demain","Demain / Après-Demain").grid(column=3, row=0, padx=20, pady=5)
+
+    VA=ttk.Checkbutton(act, offvalue=False, onvalue=True, variable=p1, text="Aujourd'hui le Aujourd'hui ?")
+    VA.grid(column=3, row=1, padx=20, pady=5)
+
     prim.mainloop()
 
 if __name__=="__main__":
     tkpres()
-
-# 17 lignes sont occupées pour le release note et ce qui va avec
