@@ -1,11 +1,6 @@
 from turtle import *
 from lettres import *
 
-up()
-speed(100)
-setup(1450,850,0,0)
-ht()
-
 def un(vx: int, vy: int,multi=40):
     multi=multi/40
     goto(vx+10*multi,vy)
@@ -133,10 +128,12 @@ def degré(vx: int, vy: int,multi=40):
     up()
     return 10*multi+5
     
-def tiret(vx: int, vy: int,taille=40):
-    goto(vx,vy+20*taille/40)
+def tiret(vx: int, vy: int, derniercar="a", taille=40):
+    if derniercar.isupper():
+        vy+=10
+    goto(vx,vy+10*taille/40)
     down()
-    goto(vx+20*taille/40,vy+20*taille/40)
+    goto(vx+20*taille/40,vy+10*taille/40)
     up()
     return 20*taille/40+5
 
@@ -215,19 +212,47 @@ def taille_phrase(phrase="", multi=40):
 # Penser à faire la même avec des minuscules. Ça peut être long, je sais
 
 def écriture(vx: int,vy: int,phrase="",multi=40, centrage=False, changeur_de_multi=()):
-    caractères_spéciaux={"0":"zero", "1":"un", "2":"deux", "3":"trois", "4":"quatre", "5":"cinq", "6":"six", "7":"sept", "8":"huit", "9":"neuf", "°":"degré", "C":"C", "-":"tiret", "©":"copyrights", "'":"apostrophe", "/":"barre_oblique", ".":"point", ":":"deux_points", ",":"virgule"}
+    caractères_spéciaux={"0":"zero", "1":"un", "2":"deux", "3":"trois", "4":"quatre", "5":"cinq", "6":"six", "7":"sept", "8":"huit", "9":"neuf", "°":"degré", "C":"C", "-":"tiret", "©":"copyrights", "'":"apostrophe", "/":"barre_oblique", ".":"point", ":":"deux_points", ",":"virgule", "ê":"e_circonflexe", "â":"a_circonflexe", "î":"i_circonflexe", "û":"u_circonflexe", "ô":"o_circonflexe", "à":"a_grave","è":"e_grave","ù":"u_grave","é":"e_aigu"}
     if centrage==False:
         x_mod=vx-taille_phrase(phrase)/2
-        #x_mod=vx-int(((len(phrase)+2)*(20*multi/40)+(len(phrase)+2)*5)/2) # Centrage des chiffres
     else:
         x_mod=vx
     for vi in range(len(phrase)):
         if len(changeur_de_multi)!=0 and changeur_de_multi[0]==vi:
             multi=changeur_de_multi[1]
         setheading(0)
-        if phrase[vi] in "1234567890-°©/'./:,":
+        if phrase[vi]=="-" :
+            if phrase[vi-1]==" " and vi>2:
+                x_mod+=tiret(x_mod,vy,phrase[vi-2],multi)
+            else:
+                x_mod+=tiret(x_mod,vy,phrase[vi-1],multi)
+        elif phrase[vi] in "1234567890-°©/'./:,âêûîôéèàù":
             x_mod+=globals()[caractères_spéciaux[phrase[vi]]](x_mod,vy,multi)
         elif phrase[vi]!=" " and phrase[vi] not in "}?;+=)!({":
             x_mod+=globals()[phrase[vi]](x_mod,vy,multi)
         else:
             x_mod+=10*(multi/40)
+
+def ecriture_sur_pluiseurs_lignes(phrase : str, multi : int):
+    #Recherche d'espaces
+    p=[]
+    ai=0
+    for i in range(len(phrase)):
+        if phrase[i]==" ":
+            p.append(phrase[ai:i])
+            ai=i+1
+    p.append(phrase[ai:])
+
+    #Recherche des additions de mots:
+    p_ecrivable=[]
+    extrait=""
+    for element in p:
+        if taille_phrase(extrait)+10+taille_phrase(element)>1365:
+            p_ecrivable.append(extrait)
+            extrait=element
+        else:
+            extrait=extrait+" "+element
+
+    #écriture
+    for j in range(len(p_ecrivable)):
+        écriture(-660, 380-50*j, p_ecrivable[j],multi, True)

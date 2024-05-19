@@ -1,15 +1,5 @@
 from turtle import *
 
-ht()
-up()
-"""
-goto(0,0)
-down()
-goto(0,20)
-goto(20,20)
-goto(20,0)
-up()
-"""
 def A(vx,vy,multi=40):
     multi=multi/40
     goto(vx,vy)
@@ -320,6 +310,7 @@ def Z(vx,vy,multi=40):
 #Les minuscules ont la même largeur que les majuscules mais font 30pvx au lieu de 40pvx
     
 def a(vx,vy,multi=40):
+    vx-=4
     multi=multi/40
     goto(vx+20*multi,vy+10*multi)
     down()
@@ -334,7 +325,7 @@ def a(vx,vy,multi=40):
     goto(vx+20*multi,vy)
     goto(vx+20*multi,vy+10*multi)
     up()
-    return 20*multi+5
+    return 16*multi+5
 
 def b(vx,vy,multi=40):
     multi=multi/40
@@ -544,7 +535,8 @@ def t(vx,vy,multi=40):
 
 def u(vx,vy,multi=40):
     multi=multi/40
-    goto(vx,vy+20*multi)
+    vy2=vy+20*multi
+    goto(vx,vy2)
     down()
     goto(vx,vy+10*multi)
     setheading(270)
@@ -580,4 +572,95 @@ def y(vx,vy,multi=40):
 def z(vx,vy,multi=40):
     Z(vx,vy,20*multi/40)
     return 10*multi/40+5
+
+### Accents et lettres accentuées ###
+
+def circonflexe(vx:int, vy:int, multi=40):
+    multi/=40
+    goto(vx,vy)
+    down()
+    goto(vx+10*multi,vy+10*multi)
+    goto(vx+20*multi,vy)
+    up()
     
+def grave(vx:int, vy:int, multi=40):
+    goto(vx+5*multi/40,vy+15*multi/40)
+    down()
+    goto(vx+15*multi/40,vy+5*multi/40)
+    up()
+    
+def aigu(vx:int, vy:int, multi=40):
+    goto(vx+2*multi/40,vy)
+    down()
+    goto(vx+17*multi/40,vy+10*multi/40)
+    up()
+#################################  
+def e_circonflexe(vx,vy,multi=40):
+    aj=e(vx,vy,multi=40)
+    circonflexe(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def a_circonflexe(vx,vy,multi=40):
+    aj=a(vx,vy,multi=40)
+    circonflexe(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def o_circonflexe(vx,vy,multi=40):
+    aj=o(vx,vy,multi=40)
+    circonflexe(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def u_circonflexe(vx,vy,multi=40):
+    aj=u(vx,vy,multi=40)
+    circonflexe(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def i_circonflexe(vx,vy,multi=40):
+    aj=i(vx,vy,multi=40)
+    circonflexe(vx-10.5*multi/40,vy+20*multi/40,multi=40)
+    return aj
+##########################################
+def e_aigu(vx,vy,multi=40):
+    aj=e(vx,vy,multi=40)
+    aigu(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def a_aigu(vx,vy,multi=40):
+    aj=a(vx,vy,multi=40)
+    aigu(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def o_aigu(vx,vy,multi=40):
+    aj=o(vx,vy,multi=40)
+    aigu(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def i_aigu(vx,vy,multi=40):
+    aj=i(vx,vy,multi=40)
+    aigu(vx-10.5*multi/40,vy+20*multi/40,multi=40)
+    return aj
+##########################################
+def e_grave(vx,vy,multi=40):
+    aj=e(vx,vy,multi=40)
+    grave(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def a_grave(vx,vy,multi=40):
+    aj=a(vx,vy,multi=40)
+    grave(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def o_grave(vx,vy,multi=40):
+    aj=o(vx,vy,multi=40)
+    grave(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def i_grave(vx,vy,multi=40):
+    aj=i(vx,vy,multi=40)
+    grave(vx,vy+20*multi/40,multi=40)
+    return aj
+
+def u_grave(vx,vy,multi=40):
+    aj=u(vx,vy,multi=40)
+    grave(vx-10.5*multi/40,vy+20*multi/40,multi=40)
+    return aj

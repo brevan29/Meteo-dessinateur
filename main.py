@@ -4,21 +4,24 @@ from datetime import datetime
 from nombres import *
 from tkinter import *
 from tkinter import ttk
-
+from METAR import recherche
 # © Brévan Météo - 2023-.
 # © Brévan HAMEL
-# Version 2.3.7
+# Version 2.4.8
+
 
 speed(200)
-setup(1600,900,0,0)
+setup(1439,846,0,0)
 ht()
 up()
 title("Dessin des prévision météo faites par Brévan")
 pensize(2)
 possibilités=[" Soleil"," Ciel Voilé"," Éclaircies"," Nuages"," Averse"," Pluie"," Orage"," Neige"," Brouillard"]
 prévisions=[]
+prim=Tk()
+passage=False
 
-def Variation_gris():
+def Variation_gris(mode=1.5):
     if mode==3:
         couleur=str(hex(randint(16,100)))[2:]
     else:
@@ -87,7 +90,7 @@ def nuages(vx,vy,mode=1.5):
         
 def éclaircies(x,y):
     soleil(x,y)
-    nuages(x+25,y-10,'ecl')
+    nuages(x+25,y-10,1)
     
 def pluie(x,y,mode="pl"):
     y=y-90
@@ -136,6 +139,7 @@ def orage(vx,vy):
     up()
     pensize(15)
     pencolor("#FAD30B")
+    vx,vy=vx-15,vy-90
     goto(vx,vy)
     down()
     goto(vx-10,vy-40)
@@ -201,14 +205,26 @@ def Ciel_voile(vx,vy):
         goto(vx+135-(-1)**(wi+va)*20,vy-20-20*wi)
         up()
 
-def préparation():
-    anglais={"Vert":"#3CBB00", "Jaune":"#FFE000", "Orange":"#FFA600", "Rouge":"#E00000"}
+def jour_le_jour():
+    limite={"01":31, "02":28, "03":31, "04":30, "05":31, "06":30, "07":31, "08":31, "09":30, "10":31, "11":30, "12":31}
     date=str(datetime.now())[:10]
-    if p1.get()==True:
-        jourdeplus=0
+    if p1.get()==True and ajd_dm.get()!="Demain / Après-Demain":
+        date=" - "+str(date[-2:])+"/"+date[5:7]+"/"+date[:4]
+    elif int(date[-2:])==limite[date[5:7]]:
+        if date[5:7]=='12':
+            date=" - 01/01/"+str(int(date[:4])+1)
+        elif int(date[5:7])<9:
+            date=" - 01/0"+str(int(date[5:7])+1)+"/"+date[:4]
+        else:
+            date=" - 01/"+str(int(date[5:7])+1)+"/"+date[:4]
     else:
-        jourdeplus=1
-    date=" - "+str(int(date[-2:])+jourdeplus)+"/"+date[5:7]+"/"+date[:4]
+        date=" - "+str(int(date[-2:])+1)+"/"+date[5:7]+"/"+date[:4]
+    return date
+   
+
+def préparation():
+    Couleur={"Vert":"#3CBB00", "Jaune":"#FFE000", "Orange":"#FFA600", "Rouge":"#E00000"}
+    date=jour_le_jour()
     position_date=((150.0+taille_phrase(date,30))/2)
     if ajd_dm.get()=="Demain / Après-Demain":
         a_écrire=["DEMAIN"+date,"APRES-DEMAIN","© BREVAN 2024"]
@@ -216,22 +232,63 @@ def préparation():
     else:
         a_écrire=["AUJOURD'HUI"+date,"DEMAIN","© BREVAN 2024"]
         emplacements=[(-position_date,370,40,True,(7,30)),(0,25,40,False,()),(600,-400,30,False,())]
-
     for i in range(3):
         if i==0:
-            color(anglais[vigidem.get()])
+            color(Couleur[vigidem.get()])
         elif i==1:
-            color(anglais[vigiadem.get()])
+            color(Couleur[vigiadem.get()])
         else:
             color("Black")
         écriture(emplacements[i][0], emplacements[i][1], a_écrire[i], emplacements[i][2], emplacements[i][3], emplacements[i][4])                
 
+def previsions_en_plus():
+    previ=ttk.Labelframe(prim, text="Prévision TAF")
+    previaero=recherche("TAF","lfrq",False)
+    previaero=previaero[2:]
+    vi=0
+    vrai=0
+    demain=jour_le_jour()[3:5]
+    if '/'==demain[-1]:
+        demain=demain[0]
+    while demain not in previaero[vi] or vrai<1:
+        vi+=1
+        if demain in previaero[vi] and not "220" in previaero[vi]:
+            vrai+=1
+
+    previaero=previaero[vi:]
+    if previaero[0]=="":
+        previaero=previaero[1:]
+    if previaero[-1]=="":
+        previaero=previaero[:-1]
+    previ.grid(column=4, row=0, rowspan=len(previaero), padx=20, pady=5, sticky=E)
+    
+
+
+    for i in range(len(previaero)):
+        ttk.Label(previ, text=previaero[i], justify="left", width=60).grid(column=0, row=i)
+
+
 def extraire():
     date=str(datetime.now())[:10]
     image = getcanvas()
-    image.postscript(file=date+".ps", colormode='color')
+    image.postscript(file='../../../'+date+".ps", colormode='color')
     opencours.set("Exportation réalisée")
-    
+
+def chgttaille():
+    global tfen, passage
+    if passage==False:
+        prim.update()
+        width=prim.winfo_width()
+        height=prim.winfo_height()
+        passage=not passage
+        tfen=["579x485",str(width)+"x"+str(height),1]
+    if tfen[2]==0:
+        prim.geometry(tfen[1]) #Grande fenêtre
+        tfen[2]=1
+    elif tfen[2]==1: #Petite fenêtre
+        prim.geometry(tfen[0])
+        tfen[2]=0
+
 def prévision(temps):
     vn=0
     pensize(2)
@@ -243,35 +300,40 @@ def prévision(temps):
     if temps[-1]!="0" and temps[-1]!="":
         vent(575,-60,temps[-1])
 
-    pensize(8)
     
-    for vy in [300,-60]: 
-        for vx in [-415,0,426]: 
+    
+    for vy in [300,-60]:
+        for vx in [-415,0,426]:
+            pensize(8)
             temps[vn]=temps[vn][1:]
             if temps[vn].lower()=="ciel voilé":
                 Ciel_voile(vx,vy)
             else:
                 globals()[temps[vn].lower()](vx,vy)
+            pencolor("black")
+            pensize(2)
+            écriture(vx-len(temps[vn+6])/2*22.5,vy-200,temps[vn+6]+"°C",40,True)
             vn+=1
-    pencolor("black")
-    pensize(2)
-    for y in [100,-260]:
-        for x in [-415,0,426]:
-            écriture(x-len(temps[vn])/2*22.5,y,temps[vn]+"°C",40,True)
-            vn+=1
-       
-    écriture(-600,-400,"Source: "+temps[vn],int(taille.get()),True)
-
+    
+    vn+=6
+    écriture(-650,-400,"Source: "+temps[vn],int(taille.get()),True)
 #prévision()
+def tailleFen():
+    width = prim.winfo_width() # Récupére la hauteur.
+    height = prim.winfo_height() 
+    print ( "width :" , width) # Affiche la largeur.
+    print ( "height :" , height)
+
 def Récupération():
     prevu=[temps1.get(),temps2.get(),temps3.get(),temps4.get(),temps5.get(),temps6.get(),temp1.get(),temp2.get(),temp3.get(),temp4.get(),temp5.get(),temp6.get(),source.get(), ventd.get(), ventad.get()]
     opencours.set("Dessin des prévisions en cours")
     prévision(prevu)
+    opencours.set("Dessins réalisés")
     prevu=[temps1.set(''),temps2.set(''),temps3.set(''),temps4.set(''),temps5.set(''),temps6.set(''),temp1.set('0'),temp2.set('0'),temp3.set('0'),temp4.set('0'),temp5.set('0'),temp6.set('0'), source.delete(0,END)]  
 
 def tkpres():
     global temp1, temp2, temp3, temp4, temp5, temp6, temps1, temps2, temps3, temps4, temps5, temps6, source, ventd, ventad, taille, vigidem, vigiadem, opencours, ajd_dm, VA, p1
-    prim=Tk()
+
     prim.title("Récupération des prévisions")
 
     p1=BooleanVar(prim)
@@ -285,103 +347,107 @@ def tkpres():
     
     ajd_dm=StringVar(prim)
     ttk.Label(prim, text="Veuillez rentrer les prévisions pour demain.", justify="center", anchor=CENTER).grid(columnspan=3, row=0, sticky="nsew")
+    sec=ttk.Frame(prim)
+    sec.grid(column=0, row=0)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    dm=ttk.Labelframe(prim, text="Prévisions pour demain")
+    dm=ttk.Labelframe(sec, text="Prévisions pour demain")
     dm.grid(column=0, columnspan=3,row=1)
 
 
-    ttk.Label(dm, text="Matin", font=("Lucida Grande", 13)).grid(column=0, row=0, padx=10, pady=2)
-    ttk.Label(dm, text="Après-midi", font=("Lucida Grande", 13)).grid(column=1, row=0, padx=10, pady=2)
-    ttk.Label(dm, text="Soir", font=("Lucida Grande", 13)).grid(column=2, row=0, padx=10, pady=2)
-    temps1=ttk.Combobox(dm, values=possibilités)
-    temps2=ttk.Combobox(dm, values=possibilités)
-    temps3=ttk.Combobox(dm, values=possibilités)
-    temp1=ttk.Spinbox(dm, from_=-20, to=50, textvariable=var1)
-    temp2=ttk.Spinbox(dm, from_=-20, to=50, textvariable=var2)
-    temp3=ttk.Spinbox(dm, from_=-20, to=50, textvariable=var3)
+    ttk.Label(dm, text="Matin", font=("Ubuntu", 10)).grid(column=0, row=0, padx=5, pady=2)
+    ttk.Label(dm, text="Après-midi", font=("Ubuntu", 10)).grid(column=1, row=0, padx=5, pady=2)
+    ttk.Label(dm, text="Soir", font=("Ubuntu", 10)).grid(column=2, row=0, padx=5, pady=2)
+    temps1=ttk.Combobox(dm, values=possibilités, width=10)
+    temps2=ttk.Combobox(dm, values=possibilités, width=10)
+    temps3=ttk.Combobox(dm, values=possibilités, width=10)
+    temp1=ttk.Spinbox(dm, from_=-20, to=50, textvariable=var1, width=5)
+    temp2=ttk.Spinbox(dm, from_=-20, to=50, textvariable=var2, width=5)
+    temp3=ttk.Spinbox(dm, from_=-20, to=50, textvariable=var3, width=5)
 
-    temps1.grid(column=0,row=1, padx=10, pady=1)
-    temps2.grid(column=1,row=1, padx=10, pady=1)
-    temps3.grid(column=2,row=1, padx=10, pady=1)
-    temp1.grid(column=0,row=2, padx=10, pady=2)
-    temp2.grid(column=1,row=2, padx=10, pady=2)
-    temp3.grid(column=2,row=2, padx=10, pady=2)
+    temps1.grid(column=0,row=1, padx=5, pady=1)
+    temps2.grid(column=1,row=1, padx=5, pady=1)
+    temps3.grid(column=2,row=1, padx=5, pady=1)
+    temp1.grid(column=0,row=2, padx=5, pady=2)
+    temp2.grid(column=1,row=2, padx=5, pady=2)
+    temp3.grid(column=2,row=2, padx=5, pady=2)
 
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    adm=ttk.Labelframe(prim, text="Prévisions pour après-demain")
-    adm.grid(row=5, column=0, columnspan=3, padx=10, pady=10)
+    adm=ttk.Labelframe(sec, text="Prévisions pour après-demain")
+    adm.grid(row=5, column=0, columnspan=3, padx=5, pady=10)
     
-    ttk.Label(adm, text="Matin", font=("Lucida Grande", 13)).grid(column=0, row=0, padx=10, pady=2)
-    ttk.Label(adm, text="Après-midi", font=("Lucida Grande", 13)).grid(column=0, row=0, padx=10, pady=2)
-    ttk.Label(adm, text="Soir", font=("Lucida Grande", 13)).grid(column=2, row=0, padx=10, pady=2)
-    temps4=ttk.Combobox(adm, values=possibilités)
-    temps5=ttk.Combobox(adm, values=possibilités)
-    temps6=ttk.Combobox(adm, values=possibilités)
-    temp4=ttk.Spinbox(adm, from_=-20, to=50, textvariable=var4)
-    temp5=ttk.Spinbox(adm, from_=-20, to=50, textvariable=var5)
-    temp6=ttk.Spinbox(adm, from_=-20, to=50, textvariable=var6)
+    ttk.Label(adm, text="Matin", font=("Ubuntu", 10)).grid(column=0, row=0, padx=5, pady=2)
+    ttk.Label(adm, text="Après-midi", font=("Ubuntu", 10)).grid(column=1, row=0, padx=5, pady=2)
+    ttk.Label(adm, text="Soir", font=("Ubuntu", 10)).grid(column=2, row=0, padx=5, pady=2)
+    temps4=ttk.Combobox(adm, values=possibilités, width=10)
+    temps5=ttk.Combobox(adm, values=possibilités, width=10)
+    temps6=ttk.Combobox(adm, values=possibilités, width=10)
+    temp4=ttk.Spinbox(adm, from_=-20, to=50, textvariable=var4, width=5)
+    temp5=ttk.Spinbox(adm, from_=-20, to=50, textvariable=var5, width=5)
+    temp6=ttk.Spinbox(adm, from_=-20, to=50, textvariable=var6, width=5)
 
 
-    temps4.grid(column=0,row=1, padx=10, pady=1)
-    temps5.grid(column=1,row=1, padx=10, pady=1)
-    temps6.grid(column=2,row=1, padx=10, pady=1)
-    temp4.grid(column=0,row=2, padx=10, pady=2)
-    temp5.grid(column=1,row=2, padx=10, pady=2)
-    temp6.grid(column=2,row=2, padx=10, pady=2)
+    temps4.grid(column=0,row=1, padx=5, pady=1)
+    temps5.grid(column=1,row=1, padx=5, pady=1)
+    temps6.grid(column=2,row=1, padx=5, pady=1)
+    temp4.grid(column=0,row=2, padx=5, pady=2)
+    temp5.grid(column=1,row=2, padx=5, pady=2)
+    temp6.grid(column=2,row=2, padx=5, pady=2)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    src=ttk.LabelFrame(prim, text="Source")
+    src=ttk.LabelFrame(sec, text="Source")
     src.grid(column=0, columnspan=3, row=9)
 
-    ttk.Label(src, text="Source du jour:", anchor="e", font=("Lucida Grande", 13)).grid(column=0, row=0, padx=20, pady=2)
-    source=Entry(src)
+    ttk.Label(src, text="Source du jour:", anchor="e", font=("Ubuntu", 10)).grid(column=0, row=0, padx=20, pady=2)
+    source=Entry(src, width=10)
     source.grid(column=1, row=0, sticky="nsew", padx=20, pady=2)
     taille=ttk.Spinbox(src, from_=20, to=50, width=4)
-    taille.grid(column=2, row=0, sticky="w", padx=10, pady=2)
+    taille.grid(column=2, row=0, sticky="w", padx=5, pady=2)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    plus=ttk.Labelframe(prim, text="Additionel")
+    plus=ttk.Labelframe(sec, text="Additionel")
     plus.grid(column=0, columnspan=3, row=10, padx=5, pady=5)
     vigidem=StringVar(plus)
     vigiadem=StringVar(plus)
 
-    ttk.Label(plus, text="Gel à prévoir ?", font=("Lucida Grande", 13)).grid(column=0, row=0, padx=10, pady=2)
+    ttk.Label(plus, text="Gel à prévoir ?", font=("Ubuntu", 10)).grid(column=0, row=0, padx=5, pady=2)
 
-    ttk.Button(plus, text="Demain", command=geld).grid(column=1,row=0, padx=10, pady=5)
-    ttk.Button(plus, text="Après-demain", command=gelad).grid(column=2,row=0, padx=10, pady=5)
+    ttk.Button(plus, text="Demain", command=geld).grid(column=1,row=0, padx=5, pady=5)
+    ttk.Button(plus, text="Après-demain", command=gelad).grid(column=2,row=0, padx=5, pady=5)
 
-    ttk.Label(plus, text="Vent ? (pareil que le gel)", font=("Lucida Grande", 13)).grid(column=0, row=1, padx=10, pady=2)
-    ventd=ttk.Spinbox(plus, from_=50, to=200)
-    ventad=ttk.Spinbox(plus, from_=50, to=200)
-    ventd.grid(column=1,row=1, padx=10, pady=5)
-    ventad.grid(column=2, row=1, padx=10, pady=5)
+    ttk.Label(plus, text="Vent ? (Tel le gel)", font=("Ubuntu", 10)).grid(column=0, row=1, padx=5, pady=2)
+    ventd=ttk.Spinbox(plus, from_=50, to=200, width=6)
+    ventad=ttk.Spinbox(plus, from_=50, to=200, width=6)
+    ventd.grid(column=1,row=1, padx=5, pady=5)
+    ventad.grid(column=2, row=1, padx=5, pady=5)
 
-    ttk.Label(plus, text="Vigilance", font=("Lucida Grande", 13)).grid(column=0, row=3, padx=10, pady=2)
+    ttk.Label(plus, text="Vigilance", font=("Ubuntu", 10)).grid(column=0, row=3, padx=5, pady=2)
     dmv=ttk.OptionMenu(plus, vigidem, "Vert", "Vert", "Jaune","Orange","Rouge", direction="flush")
     admv=ttk.OptionMenu(plus, vigiadem, "Vert", "Vert", "Jaune","Orange","Rouge", direction="flush")
-    dmv.grid(column=1, row=3, padx=10, pady=2)
-    admv.grid(column=2, row=3, padx=10, pady=2)
+    dmv.grid(column=1, row=3, padx=5, pady=2)
+    admv.grid(column=2, row=3, padx=5, pady=2)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    act=ttk.Labelframe(prim, text="Actions")
-    act.grid(column=0, columnspan=3, row=15, padx=10, pady=5)
-    ttk.Button(act, text="Valider",command=Récupération).grid(column=2,row=0, padx=20, pady=5)
-    ttk.Button(act, text="Effacer", command=clear).grid(column=0,row=0, padx=20, pady=5)
-    ttk.Button(act, text="Exporter", command=extraire).grid(column=1,row=0, padx=20, pady=5)
+    act=ttk.Labelframe(sec, text="Actions")
+    act.grid(column=0, columnspan=3, row=15, padx=5, pady=5)
+    ttk.Button(act, text="Valider",command=Récupération).grid(column=2,row=0, padx=10, pady=5)
+    ttk.Button(act, text="Effacer", command=clear).grid(column=0,row=0, padx=10, pady=5)
+    ttk.Button(act, text="Exporter", command=extraire).grid(column=1,row=0, padx=10, pady=5)
+    ttk.Button(act, text="Mod. Taille", command=chgttaille).grid(column=0, row=1, padx=10, pady=5)
 
     opencours=StringVar(prim)
     opencours.set(value="Veuillez rentrer les prévisions")
     oec=ttk.Label(act, textvariable=opencours) #Opération En Cours
-    oec.grid(column=0, columnspan=3,row=1, padx=20, pady=5)
-
+    oec.grid(column=1, columnspan=2,row=1, padx=10, pady=5)
     ttk.OptionMenu(act, ajd_dm, "Demain / Après-Demain","Aujourd'hui / Demain","Demain / Après-Demain").grid(column=3, row=0, padx=20, pady=5)
 
     VA=ttk.Checkbutton(act, offvalue=False, onvalue=True, variable=p1, text="Aujourd'hui le Aujourd'hui ?")
-    VA.grid(column=3, row=1, padx=20, pady=5)
-
+    VA.grid(column=3, row=1, padx=10, pady=5)
+    previsions_en_plus()
     prim.mainloop()
+
+    
 
 if __name__=="__main__":
     tkpres()
