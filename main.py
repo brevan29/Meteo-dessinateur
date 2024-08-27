@@ -5,10 +5,10 @@ from nombres import *
 from tkinter import *
 from tkinter import ttk, filedialog
 from json_dump import*
-# from METAR import recherche
+from METAR import recherche
 # © Brévan Météo - 2023-.
 # © Brévan HAMEL
-# Version 2.5.9
+# Version 2.6.9
 
 speed(200)
 setup(1439,846,0,0)
