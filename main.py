@@ -1,22 +1,24 @@
 from turtle import *
 from random import randint
-from datetime import datetime
+from datetime import datetime as dt
 from nombres import *
 from tkinter import *
-from tkinter import ttk
-from METAR import recherche
+from tkinter import ttk, filedialog
+from json_dump import*
+# from METAR import recherche
 # © Brévan Météo - 2023-.
 # © Brévan HAMEL
-# Version 2.4.8
-
+# Version 2.5.9
 
 speed(200)
 setup(1439,846,0,0)
 ht()
 up()
+
 title("Dessin des prévision météo faites par Brévan")
 pensize(2)
 possibilités=[" Soleil"," Ciel Voilé"," Éclaircies"," Nuages"," Averse"," Pluie"," Orage"," Neige"," Brouillard"]
+Jours=["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
 prévisions=[]
 prim=Tk()
 passage=False
@@ -207,7 +209,7 @@ def Ciel_voile(vx,vy):
 
 def jour_le_jour():
     limite={"01":31, "02":28, "03":31, "04":30, "05":31, "06":30, "07":31, "08":31, "09":30, "10":31, "11":30, "12":31}
-    date=str(datetime.now())[:10]
+    date=str(dt.now())[:10]
     if p1.get()==True and ajd_dm.get()!="Demain / Après-Demain":
         date=" - "+str(date[-2:])+"/"+date[5:7]+"/"+date[:4]
     elif int(date[-2:])==limite[date[5:7]]:
@@ -231,7 +233,7 @@ def préparation():
         emplacements=[(-position_date,370,40,True,(7,30)),(0,25,40,False,()),(600,-400,30,False,())]
     else:
         a_écrire=["AUJOURD'HUI"+date,"DEMAIN","© BREVAN 2024"]
-        emplacements=[(-position_date,370,40,True,(7,30)),(0,25,40,False,()),(600,-400,30,False,())]
+        emplacements=[(-position_date,370,40,True,(11,30)),(0,25,40,False,()),(600,-400,30,False,())]
     for i in range(3):
         if i==0:
             color(Couleur[vigidem.get()])
@@ -243,14 +245,14 @@ def préparation():
 
 def previsions_en_plus():
     previ=ttk.Labelframe(prim, text="Prévision TAF")
-    previaero=recherche("TAF","lfrq",False)
+    previaero= "Yes" #recherche("TAF","lfrq",False)
     previaero=previaero[2:]
     vi=0
     vrai=0
     demain=jour_le_jour()[3:5]
     if '/'==demain[-1]:
         demain=demain[0]
-    while demain not in previaero[vi] or vrai<1:
+    while vi-1<len(previaero) and (demain not in previaero[vi] or vrai<1):
         vi+=1
         if demain in previaero[vi] and not "220" in previaero[vi]:
             vrai+=1
@@ -271,7 +273,9 @@ def previsions_en_plus():
 def extraire():
     date=str(datetime.now())[:10]
     image = getcanvas()
-    image.postscript(file='../../../'+date+".ps", colormode='color')
+    chemin = filedialog.asksaveasfilename(initialfile=date, defaultextension='.ps', title="qu'est-ce ça donne ?")
+    print(chemin)
+    image.postscript(file=chemin, colormode='color')
     opencours.set("Exportation réalisée")
 
 def chgttaille():
@@ -317,12 +321,6 @@ def prévision(temps):
     
     vn+=6
     écriture(-650,-400,"Source: "+temps[vn],int(taille.get()),True)
-#prévision()
-def tailleFen():
-    width = prim.winfo_width() # Récupére la hauteur.
-    height = prim.winfo_height() 
-    print ( "width :" , width) # Affiche la largeur.
-    print ( "height :" , height)
 
 def Récupération():
     prevu=[temps1.get(),temps2.get(),temps3.get(),temps4.get(),temps5.get(),temps6.get(),temp1.get(),temp2.get(),temp3.get(),temp4.get(),temp5.get(),temp6.get(),source.get(), ventd.get(), ventad.get()]
@@ -331,13 +329,19 @@ def Récupération():
     opencours.set("Dessins réalisés")
     prevu=[temps1.set(''),temps2.set(''),temps3.set(''),temps4.set(''),temps5.set(''),temps6.set(''),temp1.set('0'),temp2.set('0'),temp3.set('0'),temp4.set('0'),temp5.set('0'),temp6.set('0'), source.delete(0,END)]  
 
+def exportVJson():
+    recup=[temps1.get(), temps2.get(), temps3.get(), temps4.get(), temps5.get(), temps6.get(), temps7.get(), temps8.get(), temps9.get(), temp1.get(), temp2.get(), temp3.get(), temp4.get(), temp5.get(), temp6.get(), temp7.get(), temp8.get(), temp9.get(), vent1.get(), vent2.get(), vent3.get(), vent4.get(), vent5.get(), vent6.get(), vent7.get(), vent8.get(), vent9.get(), p1.get(),p2.get(),J1.get()]
+    mettreAJour(recup)
+    print("fait")
+
 def tkpres():
-    global temp1, temp2, temp3, temp4, temp5, temp6, temps1, temps2, temps3, temps4, temps5, temps6, source, ventd, ventad, taille, vigidem, vigiadem, opencours, ajd_dm, VA, p1
+    global temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temps1, temps2, temps3, temps4, temps5, temps6, temps7, temps8, temps9, source, ventd, ventad, taille, vigidem, vigiadem, opencours, ajd_dm, VA, p1, vent1, vent2, vent3, vent4, vent5, vent6, vent7, vent8, vent9, VB, p2, J1
 
     prim.title("Récupération des prévisions")
-
+    
     p1=BooleanVar(prim)
-    var1, var2, var3, var4, var5, var6 = StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim)
+    p2=BooleanVar(prim)
+    var1, var2, var3, var4, var5, var6, var7, var8, var9, varV1, varV2, varV3, varV4, varV5, varV6, varV7, varV8, varV9= StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim), StringVar(prim)
     var1.set("0")
     var2.set("0")
     var3.set("0")
@@ -354,46 +358,99 @@ def tkpres():
     dm=ttk.Labelframe(sec, text="Prévisions pour demain")
     dm.grid(column=0, columnspan=3,row=1)
 
+    J1 = ttk.Combobox(dm, values=Jours, width=10)
+    ttk.Label(dm, text="Matin", font=("Ubuntu", 10)).grid(column=1, row=0, padx=5, pady=2)
+    ttk.Label(dm, text="Après-midi", font=("Ubuntu", 10)).grid(column=2, row=0, padx=5, pady=2)
+    ttk.Label(dm, text="Soir", font=("Ubuntu", 10)).grid(column=3, row=0, padx=5, pady=2)
 
-    ttk.Label(dm, text="Matin", font=("Ubuntu", 10)).grid(column=0, row=0, padx=5, pady=2)
-    ttk.Label(dm, text="Après-midi", font=("Ubuntu", 10)).grid(column=1, row=0, padx=5, pady=2)
-    ttk.Label(dm, text="Soir", font=("Ubuntu", 10)).grid(column=2, row=0, padx=5, pady=2)
+    ttk.Label(dm, text="Temps prévu").grid(column=0, row=1, padx=5, pady=2)
+    ttk.Label(dm, text="Températures prévues").grid(column=0, row=2, padx=5, pady=2)
+    ttk.Label(dm, text="Vent (json)").grid(column=0, row=3, padx=5, pady=2)
+
     temps1=ttk.Combobox(dm, values=possibilités, width=10)
     temps2=ttk.Combobox(dm, values=possibilités, width=10)
     temps3=ttk.Combobox(dm, values=possibilités, width=10)
     temp1=ttk.Spinbox(dm, from_=-20, to=50, textvariable=var1, width=5)
     temp2=ttk.Spinbox(dm, from_=-20, to=50, textvariable=var2, width=5)
     temp3=ttk.Spinbox(dm, from_=-20, to=50, textvariable=var3, width=5)
+    vent1=ttk.Spinbox(dm, from_=40, to=300, textvariable=varV1, width=5)
+    vent2=ttk.Spinbox(dm, from_=40, to=300, textvariable=varV2, width=5)
+    vent3=ttk.Spinbox(dm, from_=40, to=300, textvariable=varV3, width=5)
 
-    temps1.grid(column=0,row=1, padx=5, pady=1)
-    temps2.grid(column=1,row=1, padx=5, pady=1)
-    temps3.grid(column=2,row=1, padx=5, pady=1)
-    temp1.grid(column=0,row=2, padx=5, pady=2)
-    temp2.grid(column=1,row=2, padx=5, pady=2)
-    temp3.grid(column=2,row=2, padx=5, pady=2)
+    J1.grid(column= 0, row=0, padx=5, pady=1)
+    temps1.grid(column=1,row=1, padx=5, pady=1)
+    temps2.grid(column=2,row=1, padx=5, pady=1)
+    temps3.grid(column=3,row=1, padx=5, pady=1)
+    temp1.grid(column=1,row=2, padx=5, pady=2)
+    temp2.grid(column=2,row=2, padx=5, pady=2)
+    temp3.grid(column=3,row=2, padx=5, pady=2)
+    vent1.grid(column=1,row=3, padx=5, pady=2)
+    vent2.grid(column=2,row=3, padx=5, pady=2)
+    vent3.grid(column=3,row=3, padx=5, pady=2)
 
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     adm=ttk.Labelframe(sec, text="Prévisions pour après-demain")
     adm.grid(row=5, column=0, columnspan=3, padx=5, pady=10)
     
-    ttk.Label(adm, text="Matin", font=("Ubuntu", 10)).grid(column=0, row=0, padx=5, pady=2)
-    ttk.Label(adm, text="Après-midi", font=("Ubuntu", 10)).grid(column=1, row=0, padx=5, pady=2)
-    ttk.Label(adm, text="Soir", font=("Ubuntu", 10)).grid(column=2, row=0, padx=5, pady=2)
+    ttk.Label(adm, text="Matin", font=("Ubuntu", 10)).grid(column=1, row=0, padx=5, pady=2)
+    ttk.Label(adm, text="Après-midi", font=("Ubuntu", 10)).grid(column=2, row=0, padx=5, pady=2)
+    ttk.Label(adm, text="Soir", font=("Ubuntu", 10)).grid(column=3, row=0, padx=5, pady=2)
+
+    ttk.Label(adm, text="Temps prévu").grid(column=0, row=1, padx=5, pady=2)
+    ttk.Label(adm, text="Températures prévues").grid(column=0, row=2, padx=5, pady=2)
+    ttk.Label(adm, text="Vent (json)").grid(column=0, row=3, padx=5, pady=2)
     temps4=ttk.Combobox(adm, values=possibilités, width=10)
     temps5=ttk.Combobox(adm, values=possibilités, width=10)
     temps6=ttk.Combobox(adm, values=possibilités, width=10)
     temp4=ttk.Spinbox(adm, from_=-20, to=50, textvariable=var4, width=5)
     temp5=ttk.Spinbox(adm, from_=-20, to=50, textvariable=var5, width=5)
     temp6=ttk.Spinbox(adm, from_=-20, to=50, textvariable=var6, width=5)
+    vent4=ttk.Spinbox(adm, from_=40, to=300, textvariable=varV4, width=5)
+    vent5=ttk.Spinbox(adm, from_=40, to=300, textvariable=varV5, width=5)
+    vent6=ttk.Spinbox(adm, from_=40, to=300, textvariable=varV6, width=5)
+
+    temps4.grid(column=1,row=1, padx=5, pady=1)
+    temps5.grid(column=2,row=1, padx=5, pady=1)
+    temps6.grid(column=3,row=1, padx=5, pady=1)
+    temp4.grid(column=1,row=2, padx=5, pady=2)
+    temp5.grid(column=2,row=2, padx=5, pady=2)
+    temp6.grid(column=3,row=2, padx=5, pady=2)
+    vent4.grid(column=1,row=3, padx=5, pady=2)
+    vent5.grid(column=2,row=3, padx=5, pady=2)
+    vent6.grid(column=3,row=3, padx=5, pady=2)
 
 
-    temps4.grid(column=0,row=1, padx=5, pady=1)
-    temps5.grid(column=1,row=1, padx=5, pady=1)
-    temps6.grid(column=2,row=1, padx=5, pady=1)
-    temp4.grid(column=0,row=2, padx=5, pady=2)
-    temp5.grid(column=1,row=2, padx=5, pady=2)
-    temp6.grid(column=2,row=2, padx=5, pady=2)
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    ddm=ttk.Labelframe(sec, text="Prévisions pour après-après-demain")
+    ddm.grid(row=6, column=0, columnspan=3, padx=5, pady=10)
+
+    ttk.Label(ddm, text="Matin", font=("Ubuntu", 10)).grid(column=1, row=0, padx=5, pady=2)
+    ttk.Label(ddm, text="Après-midi", font=("Ubuntu", 10)).grid(column=2, row=0, padx=5, pady=2)
+    ttk.Label(ddm, text="Soir", font=("Ubuntu", 10)).grid(column=3, row=0, padx=5, pady=2)
+
+    ttk.Label(ddm, text="Temps prévu").grid(column=0, row=1, padx=5, pady=2)
+    ttk.Label(ddm, text="Températures prévues").grid(column=0, row=2, padx=5, pady=2)
+    ttk.Label(ddm, text="Vent (json)").grid(column=0, row=3, padx=5, pady=2)
+    temps7=ttk.Combobox(ddm, values=possibilités, width=10)
+    temps8=ttk.Combobox(ddm, values=possibilités, width=10)
+    temps9=ttk.Combobox(ddm, values=possibilités, width=10)
+    temp7=ttk.Spinbox(ddm, from_=-20, to=50, textvariable=var7, width=5)
+    temp8=ttk.Spinbox(ddm, from_=-20, to=50, textvariable=var8, width=5)
+    temp9=ttk.Spinbox(ddm, from_=-20, to=50, textvariable=var9, width=5)
+    vent7=ttk.Spinbox(ddm, from_=40, to=300, textvariable=varV7, width=5)
+    vent8=ttk.Spinbox(ddm, from_=40, to=300, textvariable=varV8, width=5)
+    vent9=ttk.Spinbox(ddm, from_=40, to=300, textvariable=varV9, width=5)
+
+    temps7.grid(column=1,row=1, padx=5, pady=1)
+    temps8.grid(column=2,row=1, padx=5, pady=1)
+    temps9.grid(column=3,row=1, padx=5, pady=1)
+    temp7.grid(column=1,row=2, padx=5, pady=2)
+    temp8.grid(column=2,row=2, padx=5, pady=2)
+    temp9.grid(column=3,row=2, padx=5, pady=2)
+    vent7.grid(column=1,row=3, padx=5, pady=2)
+    vent8.grid(column=2,row=3, padx=5, pady=2)
+    vent9.grid(column=3,row=3, padx=5, pady=2)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     src=ttk.LabelFrame(sec, text="Source")
@@ -416,7 +473,7 @@ def tkpres():
     ttk.Button(plus, text="Demain", command=geld).grid(column=1,row=0, padx=5, pady=5)
     ttk.Button(plus, text="Après-demain", command=gelad).grid(column=2,row=0, padx=5, pady=5)
 
-    ttk.Label(plus, text="Vent ? (Tel le gel)", font=("Ubuntu", 10)).grid(column=0, row=1, padx=5, pady=2)
+    ttk.Label(plus, text="Vent ? (Dessin)", font=("Ubuntu", 10)).grid(column=0, row=1, padx=5, pady=2)
     ventd=ttk.Spinbox(plus, from_=50, to=200, width=6)
     ventad=ttk.Spinbox(plus, from_=50, to=200, width=6)
     ventd.grid(column=1,row=1, padx=5, pady=5)
@@ -434,20 +491,19 @@ def tkpres():
     ttk.Button(act, text="Valider",command=Récupération).grid(column=2,row=0, padx=10, pady=5)
     ttk.Button(act, text="Effacer", command=clear).grid(column=0,row=0, padx=10, pady=5)
     ttk.Button(act, text="Exporter", command=extraire).grid(column=1,row=0, padx=10, pady=5)
-    ttk.Button(act, text="Mod. Taille", command=chgttaille).grid(column=0, row=1, padx=10, pady=5)
+    ttk.Button(act, text="Exporter .json", command=exportVJson).grid(column=0,row=1, padx=10, pady=5)
 
     opencours=StringVar(prim)
     opencours.set(value="Veuillez rentrer les prévisions")
     oec=ttk.Label(act, textvariable=opencours) #Opération En Cours
     oec.grid(column=1, columnspan=2,row=1, padx=10, pady=5)
-    ttk.OptionMenu(act, ajd_dm, "Demain / Après-Demain","Aujourd'hui / Demain","Demain / Après-Demain").grid(column=3, row=0, padx=20, pady=5)
+    VA=ttk.Checkbutton(act, offvalue=False, onvalue=True, variable=p1, text="Horoscope ?")
+    VA.grid(column=3, row=0, padx=10, pady=5)
 
-    VA=ttk.Checkbutton(act, offvalue=False, onvalue=True, variable=p1, text="Aujourd'hui le Aujourd'hui ?")
-    VA.grid(column=3, row=1, padx=10, pady=5)
-    previsions_en_plus()
+    VB=ttk.Checkbutton(act, offvalue=False, onvalue=True, variable=p2, text="Ephéméride ?")
+    VB.grid(column=3, row=1, padx=10, pady=5)
+    #previsions_en_plus()
     prim.mainloop()
-
-    
 
 if __name__=="__main__":
     tkpres()
