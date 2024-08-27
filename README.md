@@ -7,7 +7,7 @@
      - Amélioration de l'interface graphique -- Ajout des labelFrame + Séparation des Parties ✅
      - Amélioration de la fonction écriture | Le centrage ✅
      - Fusion de différentes création de *Nuages* ✅
-     - Ajout de l'interprétation du code TAF et intégration dans l'interface graphique ✅
+     - Ajout de l'interprétation du code TAF et intégration dans l'interface graphique ✅ - Absent lors de l'execution pour des raisons pratiques 
    - **Améliorations mineures**
      - Ajout de la vigilance ✅
      - Revue des emplacements des objets dessinés ✅
