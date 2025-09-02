@@ -168,7 +168,7 @@ def JourEnLong(JourDeDépart):
 def mettreAJour(Récupéré):
 	#Récupéré = [0 à 8 : Temps --- 9 à 17 : Température, 18 à 26 : Vent --- 27 : p1 - 28 : p2 - 29 J1] ------ Tout à été sous .get()
 	import json
-	with open('/Users/brevan/Documents/Brevan_Meteo/supplementaire.json','r') as f:
+	with open('/home/Brevan/Documents/Brevan_Meteo/supplementaire.json','r') as f:
 		data_hier = json.load(f)
 	jours = JourEnLong(Récupéré[-1])
 	soleil=ephem()
@@ -216,10 +216,10 @@ def mettreAJour(Récupéré):
 					}
 				}
 			}
-	with open('/Users/brevan/Documents/Brevan_Meteo/supplementaire.json','w') as f:
+	with open('/home/Brevan/Documents/Brevan_Meteo/supplementaire.json','w') as f:
 		json.dump(data,f,indent=4, ensure_ascii=False)
 	
-	with open('/Users/brevan/Documents/Brevan_Meteo/météo.json','r') as f:
+	with open('/home/Brevan/Documents/Brevan_Meteo/météo.json','r') as f:
 		data_hier = json.load(f)
 	data={
 		'aujourdhui':data_hier['demain'],
@@ -269,5 +269,5 @@ def mettreAJour(Récupéré):
                 "Vent":verif(Récupéré[26])},
 		}
 	}
-	with open('/Users/brevan/Documents/Brevan_Meteo/météo.json','w') as f:
+	with open('/home/Brevan/Documents/Brevan_Meteo/météo.json','w') as f:
 		json.dump(data,f,indent=4, ensure_ascii=False)
